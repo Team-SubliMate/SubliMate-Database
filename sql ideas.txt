@@ -1,0 +1,17 @@
+is this only for one fridge? or multiple fridges? How many backends do we have?
+Likely one total backend, so now we need total fridges
+Assuming a shelf that is removed has no items on it
+If a shelf is removed from a fridge that has items on it, those items are all lost!
+Does the app know which fridge it is? and how many shelves it has? and which shelf is which?
+
+Fridge table likely not necessary
+//Fridge?: ID, Owner
+
+Fridge-Shelf: Fid, Sid
+
+shelf individual table likely not necessary
+//Shelf?:
+
+Shelf-Item: Sid, ItemID
+
+Item: ID, weight, name, quantity (how do I connect quantity and weight?), DOE, BBD
