@@ -1,56 +1,39 @@
-USE sublimate;
-
 DROP TABLE IF EXISTS Items;
-DROP TABLE IF EXISTS Fridges;
-
-CREATE TABLE Fridges (
-	Id INT NOT NULL AUTO_INCREMENT,
-    MacAddr VARCHAR(255) NOT NULL,
-    PRIMARY KEY (Id)
-);
 
 CREATE TABLE Items (
-	FridgeId INT NOT NULL CHECK (FridgeId>=1),
     ShelfId INT NOT NULL CHECK (ShelfId>=1),
 	ItemId INT NOT NULL CHECK (ItemId>=1),
 	Weight FLOAT NOT NULL,
     Product VARCHAR(255) NOT NULL,
+    Quantity INT NOT NULL,
     Entry DATE NOT NULL,
 	BestBefore DATE,
-    Quantity INT NOT NULL,
-    CONSTRAINT PK_Items PRIMARY KEY (FridgeId, ShelfId, ItemId),
-    FOREIGN KEY (FridgeId) REFERENCES Fridges(Id)
+    RemovedAt Date,
+    CONSTRAINT PK_Items PRIMARY KEY (ShelfId, ItemId)
 );
 
-CREATE INDEX Item_Fridge ON Items (FridgeId);
-CREATE INDEX Shelf_Fridge ON Items (FridgeId, ShelfId);
-
-DROP PROCEDURE IF EXISTS GetNextItemId;
-
-delimiter $$
+CREATE INDEX Shelf_Index ON Items (ShelfId);
     
-CREATE PROCEDURE GetNextItemId(IN fridgeId INT, IN shelfId INT, OUT id INT)
+CREATE OR REPLACE FUNCTION GetNextItemId(IN shelf INT) RETURNS INT AS $$
+	declare
+		ret INT;
 	BEGIN
-		IF (SELECT COUNT(*) FROM Items WHERE FridgeId = fridgeId AND ShelfId = shelfId) = 0 THEN
-			SELECT -1 INTO id;
+		IF (SELECT COUNT(*) FROM Items WHERE ShelfId = shelf) = 0 THEN
+			RETURN -1;
         ELSE
-			SELECT (MAX(ItemId) + 1) INTO id FROM Items WHERE FridgeId = fridgeId AND ShelfId = shelfId;
-			IF id IS NULL THEN SET id=1;
+			SELECT (MAX(ItemId) + 1) INTO ret FROM Items WHERE ShelfId = shelf;
+			IF ret IS NULL THEN RETURN 1;
 			END IF;
 		END IF;
-    END$$
-delimiter ;
+		RETURN ret;
+    END;
+$$ LANGUAGE plpgsql;
 
-CALL GetNextItemId(0, 0, @c);
-
-SELECT @c;
-
-INSERT INTO Fridges(MacAddr) VALUES ("THis is not a MAC ADDRESS");
-
-INSERT INTO Items (FridgeId, ShelfId, ItemId, Product, Weight, Quantity, Entry)
-	Values (1, 1, 1, "Test", 150, 2, CURDATE());
+SELECT * FROM GetNextItemId(0);
 
 
-CALL GetNextItemId(0, 0, @c);
+INSERT INTO Items (ShelfId, ItemId, Product, Weight, Quantity, Entry)
+	Values (1, 1, 'Test', 150, 2, current_date);
 
-SELECT  @c;Item_Fridge
+
+SELECT * FROM GetNextItemId(1);
