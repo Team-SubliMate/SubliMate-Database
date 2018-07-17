@@ -8,7 +8,7 @@ CREATE TABLE Items (
     Quantity INT NOT NULL,
     Entry DATE NOT NULL,
 	BestBefore DATE,
-    RemovedAt Date,
+    RemovedAt TIMESTAMP,
     CONSTRAINT PK_Items PRIMARY KEY (ShelfId, ItemId)
 );
 
