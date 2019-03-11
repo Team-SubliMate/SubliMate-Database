@@ -9,6 +9,8 @@ CREATE TABLE Items (
     Entry DATE NOT NULL,
 	BestBefore DATE,
     RemovedAt TIMESTAMP,
+    UPC VARCHAR(12),
+    ImgUrl VARCHAR(255),
     CONSTRAINT PK_Items PRIMARY KEY (ShelfId, ItemId)
 );
 
@@ -31,9 +33,7 @@ $$ LANGUAGE plpgsql;
 
 SELECT * FROM GetNextItemId(0);
 
-
 INSERT INTO Items (ShelfId, ItemId, Product, Weight, Quantity, Entry)
 	Values (1, 1, 'Test', 150, 2, current_date);
-
 
 SELECT * FROM GetNextItemId(1);
